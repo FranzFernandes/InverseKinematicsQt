@@ -14,7 +14,7 @@ public:
     QPoint getReverseY( QPoint, double);
     double calculateDotProduct(QPoint, QPoint, QPoint);
     double calculateCrossProduct(QPoint, QPoint, QPoint);
-    void turnToTarget(QPoint);
+//    void turnToTarget(QPoint);
     void turnByAngle(double);
 
     double getLength( void );

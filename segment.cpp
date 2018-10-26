@@ -6,6 +6,9 @@
 
 using namespace std;
 
+
+//constructor function for the segments.
+// in this case, initialize the base Segment with fixed values
 Segment::Segment( void )
 {
     QPoint start, end;
@@ -24,6 +27,7 @@ Segment::Segment( void )
     cout << "segment created" << endl;
 }
 
+// constructor funciton with parameters. Creates a Segment with given parameters.
 Segment::Segment(QPoint start, double length, double angle){
     this->start = start;
 //    this->end = end;
@@ -32,6 +36,8 @@ Segment::Segment(QPoint start, double length, double angle){
     this->angle = angle;
 }
 
+
+// Calculates the dotproduct and returns the angle of rotation.
 double Segment::calculateDotProduct(QPoint effector, QPoint target, QPoint beginJoint) {
     //Dotproduct = Ax * Bx + Ay * By
     double ax, bx, ay, by, dotprod, teta, alength, blength, magnitude;
@@ -55,6 +61,7 @@ double Segment::calculateDotProduct(QPoint effector, QPoint target, QPoint begin
     return teta;
 }
 
+// Calculates the cross product of the two vectors.
 double Segment::calculateCrossProduct(QPoint effector, QPoint target, QPoint beginJoint) {
     // crossproduct 2d = Ax * By - Bx * Ay
     double ax, ay, bx, by, cross;
@@ -67,17 +74,19 @@ double Segment::calculateCrossProduct(QPoint effector, QPoint target, QPoint beg
     return cross;
 }
 
+// Destroy function
 Segment::~Segment( void ){
 }
 
-void Segment::turnToTarget(QPoint target) {
-    QPoint _start = this->start;
-    int x = target.x() - _start.x();
-    int y = target.y() - _start.y();
-    //toa -> tan() = overstaand/aanliggend.
-    double angle = atan2 (y, x) * 180 / PI;
-    this->end = calculateEnd(this->start, this->length, angle);
-}
+
+//void Segment::turnToTarget(QPoint target) {
+//    QPoint _start = this->start;
+//    int x = target.x() - _start.x();
+//    int y = target.y() - _start.y();
+//    //toa -> tan() = overstaand/aanliggend.
+//    double angle = atan2 (y, x) * 180 / PI;
+//    this->end = calculateEnd(this->start, this->length, angle);
+//}
 
 void Segment::turnByAngle(double teta) {
     this->angle += teta;
@@ -85,10 +94,11 @@ void Segment::turnByAngle(double teta) {
     this->end = calculateEnd(this->start, this->length, angle);
 }
 
+// Sets the end point to parameter target
 void Segment::setEnd(QPoint target){
     this->end = target;
 }
-
+// Sets the begin point to parameter target. Needed for updating begin coordinates for upcoming segments
 void Segment::setBegin(QPoint target) {
     this->start = target;
 }
@@ -98,11 +108,13 @@ double Segment::getLength( void ) {
     return length;
 }
 
+// reverses the Y coordinates so it fits in the animation coordinates.
 QPoint Segment::getReverseY( QPoint point, double height) {
     point.setY((height - point.y()));
     return point;
 }
 
+// calculates the end point based on the length, starting position and angle of the segment
 QPoint Segment::calculateEnd(QPoint start, double length, double angle) {
     QPoint end;
     // cos = aanliggende/ schuine; aanliggende = cos * schuine

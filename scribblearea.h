@@ -21,8 +21,7 @@ public:
     bool isModified() const { return modified; }
     QColor penColor() const { return myPenColor; }
     int penWidth() const { return myPenWidth; }
-    void initSegments();
-    void drawSegment();
+
     Segment startSeg;
     std::vector<Segment> segList;
     QPoint target;
@@ -36,6 +35,8 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
 
 private:
+    void initSegments();
+    void drawSegment();
     void delay();
     void updateSegments(size_t, double);
     void resizeImage(QImage *image, const QSize &newSize);
