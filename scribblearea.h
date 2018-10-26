@@ -36,8 +36,10 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
 
 private:
+    void delay();
+    void updateSegments(size_t, double);
     void resizeImage(QImage *image, const QSize &newSize);
-
+    void doMagic();
     bool modified;
     bool scribbling;
     bool started;

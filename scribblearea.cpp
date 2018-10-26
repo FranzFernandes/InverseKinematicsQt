@@ -18,7 +18,6 @@ ScribbleArea::ScribbleArea(QWidget *parent)
     vector<Segment> segList;
     Segment startSeg( void );
     QPoint target;
-
 }
 
 
@@ -45,12 +44,16 @@ void ScribbleArea::drawSegment() {
     painter.setPen(QPen(myPenColor, myPenWidth, Qt::SolidLine, Qt::RoundCap,
                         Qt::RoundJoin));
     for(Segment i : segList) {
+        QPoint startYReverse, endYReverse;
+        int hoogte = height();
+        startYReverse = i.getReverseY(i.start, hoogte);
+        endYReverse = i.getReverseY(i.end, hoogte);
         painter.setPen(QPen(myPenColor, myPenWidth, Qt::SolidLine, Qt::RoundCap,
                             Qt::RoundJoin));
-        painter.drawLine(i.start, i.end);
+        painter.drawLine(startYReverse, endYReverse);
         painter.setPen(QPen(Qt::darkCyan, 5, Qt::SolidLine, Qt::RoundCap,
                             Qt::RoundJoin));
-        painter.drawEllipse(i.end.x(), i.end.y(), 5, 5);
+        painter.drawEllipse(endYReverse.x(), endYReverse.y(), 5, 5);
     }
     modified = true;
     int rad = (myPenWidth / 2) + 2;
@@ -59,10 +62,13 @@ void ScribbleArea::drawSegment() {
     cout << "painted" << endl;
 }
 
+
 void ScribbleArea::mousePressEvent(QMouseEvent *event)
 {
     if(event->button() == Qt::LeftButton) {
-        target = event->pos();
+        QPoint mousePos = event->pos();
+        mousePos.setY(height()-mousePos.y());
+        target = mousePos;
         /// first click for drawing the segments
         if (!started){
             initSegments();
@@ -70,11 +76,61 @@ void ScribbleArea::mousePressEvent(QMouseEvent *event)
             update();
             started = true;
         } else {
-//            startSeg.setEnd(event->pos());
-            segList[0].setEnd(event->pos());
+            doMagic();
+        }
+    }
+}
+
+void ScribbleArea::doMagic(){
+    int maxAttempts = 10;
+    int counter = 0;
+    bool done = false;
+    double distTargetX, distTargetY;
+    double arrivalRange = 25;
+    double dampening = 30;
+    while( counter < maxAttempts && !done) {
+        for(std::size_t i = (segList.size()); i!=0; --i) {
+            QPoint effector, beginJoint;
+            effector = segList[segList.size()-1].end;
+            beginJoint = segList[i-1].start;
+            double dot = segList[i-1].calculateDotProduct(effector, target, beginJoint); // returns teta
+            if(dot >= dampening) {
+                dot = dampening;
+            } else if (dot <= dampening*-1) {
+                dot = dampening*-1;
+            }
+            double cross = segList[i-1].calculateCrossProduct(effector, target, beginJoint);
+            if(cross < 0 ) {
+                dot *= -1;
+            }
+            updateSegments(i-1, dot);
             drawSegment();
             update();
-            cout << "mouse x:" <<event->pos().x() << "mouse y:" << event->pos().y() << endl;
+            distTargetX = target.x() - segList[segList.size()-1].end.x();
+            distTargetY = target.y() - segList[segList.size()-1].end.y();
+            if ((distTargetX * distTargetX + distTargetY * distTargetY) <= arrivalRange) {
+                cout << "target reached!" << endl;
+                done = true;
+                break;
+            }
+            delay();
+        }
+        ++counter;
+    }
+}
+
+void ScribbleArea::delay()
+{
+    QTime dieTime= QTime::currentTime().addMSecs(100);
+    while (QTime::currentTime() < dieTime)
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+}
+
+void ScribbleArea::updateSegments(size_t index, double angle) {
+    for(size_t i = index; i<=segList.size()-1; ++i){
+        segList[i].turnByAngle(angle);
+        if(i+1 <segList.size()) {
+            segList[i+1].setBegin(segList[i].end);
         }
     }
 }
@@ -82,8 +138,8 @@ void ScribbleArea::mousePressEvent(QMouseEvent *event)
 void ScribbleArea::initSegments(){
     cout << "height: "<< height() << "width: " <<width() << endl;
     segList.push_back(startSeg);
-    for(std::size_t i=1; i<3; ++i) {
-        double length = 50;
+    for(std::size_t i=1; i<5; ++i) {
+        double length = 70;
         double angle = 90;
         Segment nextSeg(segList[i-1].end, length, angle);
         segList.push_back(nextSeg);

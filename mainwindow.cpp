@@ -14,7 +14,7 @@ MainWindow::MainWindow()
     createActions();
     createMenus();
 
-    setWindowTitle(tr("Scribble"));
+    setWindowTitle(tr("Inverse Kinematics CCD"));
     resize(500, 500);
 }
 
@@ -57,10 +57,6 @@ void MainWindow::createActions()
     penWidthAct = new QAction(tr("Pen &Width..."), this);
     connect(penWidthAct, SIGNAL(triggered()), this, SLOT(penWidth()));
 
-//    clearScreenAct = new QAction(tr("&Clear Screen"), this);
-//    clearScreenAct->setShortcut(tr("Ctrl+L"));
-//    connect(clearScreenAct, SIGNAL(triggered()),
-//            scribbleArea, SLOT(clearImage()));
 }
 
 void MainWindow::createMenus()
@@ -71,9 +67,6 @@ void MainWindow::createMenus()
     optionMenu = new QMenu(tr("&Options"), this);
     optionMenu->addAction(penColorAct);
     optionMenu->addAction(penWidthAct);
-//    optionMenu->addSeparator();
-//    optionMenu->addAction(clearScreenAct);
-
 
     menuBar()->addMenu(fileMenu);
     menuBar()->addMenu(optionMenu);
